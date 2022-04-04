@@ -3,8 +3,6 @@ import { proxy } from "valtio"
 
 export type V3 = readonly [number, number, number]
 
-export type ObjectRef = { current: Object3D }
-
 export type BoxT = {
   position: V3
   index: number
@@ -19,8 +17,8 @@ export type State = {
   stacks: { [key: string]: StackT }
   hoveredBox: number | null
   hoveredStack: string | null
-  outlined: ObjectRef[]
-  illuminated: ObjectRef[]
+  outlined: Object3D[]
+  illuminated: Object3D[]
 }
 
 const state = proxy<State>({

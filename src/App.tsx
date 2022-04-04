@@ -4,11 +4,11 @@ import { pipe } from "fp-ts/lib/function"
 import { map } from "fp-ts/lib/ReadonlyArray"
 import { keys } from "fp-ts/lib/ReadonlyRecord"
 import React, { useRef } from "react"
-import { Group, Mesh } from "three"
+import { Group, Mesh, Object3D } from "three"
 import { ref, useSnapshot } from "valtio"
 import { subscribeKey } from "valtio/utils"
-import Effects from "./effects"
-import state, { ObjectRef, V3 } from "./state"
+import Effects from "./Effects"
+import state, { V3 } from "./state"
 import { isMesh } from "./util"
 
 // boxes and stacks...
@@ -35,7 +35,7 @@ const Box = ({
   subscribeKey(state, "hoveredBox", () => {
     if (!meshRef.current) return
     if (state.hoveredStack === stackName && state.hoveredBox === index) {
-      state.outlined = [ref(meshRef as ObjectRef)]
+      state.outlined = [ref(meshRef.current)]
     }
   })
   return (
@@ -45,7 +45,7 @@ const Box = ({
       {...{ onPointerOver: hover, onPointerMove: hover }}
     >
       <boxBufferGeometry />
-      <meshStandardMaterial color="#234" />
+      <meshStandardMaterial color="#234" emissive="red" />
     </mesh>
   )
 }
@@ -58,10 +58,10 @@ const Stack = ({ name }: { name: string }) => {
   subscribeKey(state, "hoveredStack", () => {
     if (!groupRef.current) return
     if (state.hoveredStack === name) {
-      const collection: ObjectRef[] = []
+      const collection: Object3D[] = []
       groupRef.current!.traverse((o3) => {
         if (isMesh(o3)) {
-          collection.push(ref({ current: o3 } as ObjectRef))
+          collection.push(ref(o3))
         }
       })
       state.illuminated = collection
@@ -102,12 +102,10 @@ const App = () => {
         camera={{ zoom: 100 }}
         onCreated={({ gl, camera }) => {
           gl.setClearColor("#222")
-          // camera.layers.disableAll()
-          // camera.layers.enable(0)
-          // camera.layers.enable(2)
         }}
       >
         <Main />
+        <ambientLight intensity={5} />
         <Effects />
         <OrbitControls />
       </Canvas>
